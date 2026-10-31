@@ -34,7 +34,7 @@ def create_app():
     @app.get("/ping")
     def ping():
         # Health check del balanceador: no toca la base de datos.
-        return "pong", 200
+        return "pang", 200
 
     @app.get("/version")
     def version():

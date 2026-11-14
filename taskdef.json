@@ -1,0 +1,41 @@
+{
+  "family": "creative-app-03vvwk",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::078809709583:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "Main",
+      "image": "<IMAGE1_NAME>",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "environment": [
+        {
+          "name": "DATABASE_URL",
+          "value": "postgresql://blacklist:devops11@blacklist.cb2qyos8kucn.us-east-2.rds.amazonaws.com:5432/postgres"
+        },
+        {
+          "name": "JWT_SECRET_KEY",
+          "value": "41a422c71c84fc5e352e0a7eadbe2bea1b82f12dcccc9e137e455c183d803e3d"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/crestive-app-03vvwk",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}

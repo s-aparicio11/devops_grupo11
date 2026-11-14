@@ -1,39 +1,33 @@
 version: 0.2
 
+env:
+  exported-variables:
+    - REPOSITORY_URI
+    - IMAGE_TAG
+
 phases:
   install:
     runtime-versions:
       python: 3.13
     commands:
-      - python --version
       - python -m pip install -r requirements-dev.txt
-  build:
+  pre_build:
+    on-failure: ABORT
     commands:
       - python -m pytest
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - export IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+  build:
+    commands:
+      - docker build --provenance=false --sbom=false -t $REPOSITORY_URI:$IMAGE_TAG .
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
 
 artifacts:
   files:
-    - "**/*"
-  exclude-paths:
-    - ".git/**/*"
-    - ".venv/**/*"
-    - "venv/**/*"
-    - "**/__pycache__/**/*"
-    - "**/*.pyc"
-    - "**/*.db"
-    - "**/.env"
-    - "**/*.zip"
-    - "**/*.log"
-    - ".elasticbeanstalk/**/*"
-    - ".idea/**/*"
-    - ".vscode/**/*"
-    - "**/.DS_Store"
-    - ".coverage"
-    - ".pytest_cache/**/*"
-    - "htmlcov/**/*"
-    - "postman/**/*"
-    - "scripts/**/*"
-    - "mediciones/**/*"
-    - "tests/**/*"
-    - "pytest.ini"
-    - "requirements-dev.txt"
+    - appspec.yaml
+    - taskdef.json
+    - imageDetail.json

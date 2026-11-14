@@ -32,8 +32,7 @@
         "options": {
           "awslogs-group": "/ecs/crestive-app-03vvwk",
           "awslogs-region": "us-east-2",
-          "awslogs-stream-prefix": "ecs",
-          "awslogs-create-group": "true"
+          "awslogs-stream-prefix": "ecs"
         }
       }
     }
